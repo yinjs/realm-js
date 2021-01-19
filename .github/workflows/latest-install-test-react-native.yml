@@ -80,7 +80,7 @@ jobs:
                 const message = data.toString('utf-8');
                 res.statusCode = 200;
                 res.end();
-                console.log(`App sent "${message}"`);
+                console.log(`App sent "${message}"!`);
                 if (message === EXPECTED_MESSAGE) {
                   process.exit(0);
                 } else {
