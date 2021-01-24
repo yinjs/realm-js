@@ -214,29 +214,27 @@ inline double node::Value::to_number(Napi::Env env, const Napi::Value& value) {
 
 template<>
 inline OwnedBinaryData node::Value::to_binary(Napi::Env env, const Napi::Value value) {
-
-    NodeBinary *node_binary = nullptr;
-    
+    OwnedBinaryData binary_data;
 
     if(value.IsDataView()) {
-        node_binary = new NodeBinaryManager<Napi::DataView, Napi::Value>{value};
+        binary_data = NodeBuffer::from_array<Napi::DataView>(value);
     }else if(value.IsBuffer()) {
-        node_binary = new NodeBinaryManager<Napi::Buffer<char>, Napi::Value>{value};
+        binary_data = NodeBuffer::from_buffer<Napi::Buffer<char>>(value);
     }else if(value.IsTypedArray()) {
-        node_binary = new NodeBinaryManager<Napi::TypedArray, Napi::Value>{value};
+        binary_data = NodeBuffer::from_array<Napi::TypedArray>(value);
     }else if(value.IsArrayBuffer()) {
-        node_binary = new NodeBinaryManager<Napi::ArrayBuffer, Napi::Value>{value};
+        binary_data = NodeBuffer::from_buffer<Napi::ArrayBuffer>(value);
     }
 
-    if(node_binary == nullptr) {
-        throw std::runtime_error("Can only convert Buffer, ArrayBuffer, and ArrayBufferView objects to binary");
-    }
-
-    if(node_binary->is_empty()) {
+    if(binary_data.get().size() < 1) {
         throw std::runtime_error("A non-empty ArrayBuffer, BufferView or Buffer is expected.");
     }
 
-    return node_binary->create_binary_blob();
+    if(binary_data.get().is_null()) {
+        throw std::runtime_error("Can only convert Buffer, ArrayBuffer, and ArrayBufferView objects to binary");
+    }
+
+    return binary_data;
 }
 
 

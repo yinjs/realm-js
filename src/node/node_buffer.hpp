@@ -18,78 +18,53 @@
 
 #pragma once
 
+#include <iostream>
 #include "napi.h"
 
 namespace realm {
 namespace js {
 
-using NodeBuffer = Napi::Buffer<char>;
 using TypedArray = Napi::TypedArray;
 using DataView = Napi::DataView;
+using Val = const Napi::Value;
 
-template <typename ArrayBuffer>
-int get_size(ArrayBuffer array_buffer)
-{
-    return array_buffer.ByteLength();
-}
+struct NodeBuffer {
+    template <typename ArrayBuffer>
+    static int get_size(ArrayBuffer array_buffer)
+    {
+        std::cout << "Something Else Length" << std::endl;
+        return array_buffer.ByteLength();
+    }
 
-template <>
-int get_size<NodeBuffer>(NodeBuffer buffer)
-{
-    return buffer.Length();
-}
+    template <>
+    static int get_size<Napi::Buffer<char>>(Napi::Buffer<char> buffer)
+    {
+        std::cout << "Node Buffer" << std::endl;
+        return buffer.Length();
+    }
 
-template <typename ArrayBuffer>
-auto get_data(ArrayBuffer buffer)
-{
-    return static_cast<const char*>(buffer.Data());
-}
+    template <typename T>
+    static OwnedBinaryData from_array(Val value)
+    {
+        std::cout << "Data From T" << std::endl;
+        auto array_buffer = value.template As<T>();
+        auto buffer = array_buffer.ArrayBuffer();
+        return make_binary_object(buffer, get_size(buffer));
+    }
 
-template <>
-auto get_data<DataView>(DataView data_view)
-{
-    auto buffer = data_view.ArrayBuffer();
-    return static_cast<const char*>(buffer.Data());
-}
+    template <class T>
+    static OwnedBinaryData from_buffer(Val value)
+    {
+        std::cout << "Data From Napi::ArrayBuffer" << std::endl;
+        auto buffer = value.template As<T>();
+        return make_binary_object(buffer, get_size(buffer));
+    }
 
-template <>
-auto get_data<TypedArray>(TypedArray typed_array)
-{
-    auto buffer = typed_array.ArrayBuffer();
-    return static_cast<const char*>(buffer.Data());
-}
-
-class NodeBinary {
-public:
-    virtual bool is_empty() = 0;
-    virtual OwnedBinaryData create_binary_blob() = 0;
-    virtual int length() = 0;
-};
-
-template <typename BufferType, typename Value>
-class NodeBinaryManager : public NodeBinary {
 private:
-    BufferType buffer;
-
-public:
-    NodeBinaryManager(Value value)
+    template <typename T>
+    static OwnedBinaryData make_binary_object(T buffer, int len)
     {
-        buffer = value.template As<BufferType>();
-    }
-
-    OwnedBinaryData create_binary_blob()
-    {
-        return OwnedBinaryData(get_data<BufferType>(buffer), length());
-    }
-
-    bool is_empty()
-    {
-        return length() == 0;
-    }
-
-    int length()
-    {
-        return get_size<BufferType>(buffer);
+        return OwnedBinaryData(static_cast<const char*>(buffer.Data()), len);
     }
 };
 
