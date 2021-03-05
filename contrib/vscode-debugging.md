@@ -52,7 +52,11 @@ Select the `LLDB Launch Unit Tests` from the run tab:
 
 ![Debug Run Tab](./assets/debugRunTab.png)
 
-Now press play, enter "testListPush" as filter and we should arrive at our new breakpoint.
+Now press play, type "testListPush" as filter and hit <kbd>Enter</kbd>
+
+![Enter test filter](./assets/debug-enter-test-filter.png)
+
+We should now arrive at our new breakpoint.
 
 ![Met Breakpoint](./assets/metBreakpoint.png)
 
