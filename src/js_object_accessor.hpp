@@ -25,6 +25,7 @@
 #include "js_realm_object.hpp"
 #include "js_schema.hpp"
 #include "dictionary/js_dictionary.hpp"
+#include "set/js_set.hpp"
 
 #if REALM_ENABLE_SYNC
 #include <realm/util/base64.hpp>
@@ -165,11 +166,14 @@ public:
     ValueType box(realm::Results results) {
         return ResultsClass<JSEngine>::create_instance(m_ctx, std::move(results));
     }
-    ValueType box(realm::object_store::Set set) {
-        throw std::runtime_error("'Set' type support is not implemented yet");
-    }
+    // ValueType box(realm::object_store::Set set) {
+    //     throw std::runtime_error("'Set' type support is not implemented yet");
+    // }
     ValueType box(realm::object_store::Dictionary dictionary) {
         return dictionary_adapter.wrap(m_ctx, dictionary);
+    }
+    ValueType box(realm::object_store::Set const &set) {
+        return set_adapter.wrap(m_ctx, set);
     }
 
     bool is_null(ValueType const& value) {
@@ -229,6 +233,17 @@ public:
         }
     }
 
+    // called when creating sets.
+    template<typename Fn>
+    void enumerate_set(ValueType &value, Fn &&func) {
+        auto js_object = Value::validated_to_object(m_ctx, value);
+        for (auto key : Object::get_property_names(m_ctx, js_object)) {
+            std::string k = key;
+            ValueType val = Object::get_property(m_ctx, js_object, key);
+            func(k, val);
+        }
+    }
+
     bool is_same_list(realm::List const& list, ValueType const& value) const noexcept {
         auto object = Value::validated_to_object(m_ctx, value);
         if (js::Object<JSEngine>::template is_instance<ListClass<JSEngine>>(m_ctx, object)) {
@@ -237,11 +252,15 @@ public:
         return false;
     }
 
-    bool is_same_set(realm::object_store::Set const& set, ValueType const& value) const {
-        throw std::runtime_error("'Set' type support is not implemented yet");
-    }
+    // bool is_same_set(realm::object_store::Set const& set, ValueType const& value) const {
+    //     throw std::runtime_error("'Set' type support is not implemented yet");
+    // }
 
     bool is_same_dictionary(realm::object_store::Dictionary const& dictionary, ValueType const& value) const {
+        return false;
+    }
+
+    bool is_same_set(realm::object_store::Set const &set, ValueType const &value) const {
         return false;
     }
 
@@ -257,6 +276,7 @@ private:
     ContextType m_ctx;
     std::shared_ptr<Realm> m_realm;
     DictionaryAdapter<JSEngine> dictionary_adapter;
+    SetAdapter<JSEngine> set_adapter;
     Obj m_parent;
     const Property* m_property = nullptr;
     const ObjectSchema* m_object_schema;

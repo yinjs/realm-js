@@ -513,8 +513,16 @@ inline bool Value<T>::is_valid_for_property_type(ContextType context, const Valu
         if (Object<T>::template is_instance<ListClass<T>>(context, object)) {
             return check_collection_type(get_internal<T, ListClass<T>>(context, object));
         }
-        if(type == PropertyType::Dictionary) {
-            return true; // dictionary place-holder
+
+        switch (type) {
+            case PropertyType::Dictionary:
+                return true;
+
+            case PropertyType::Set:
+                return true;
+
+            default:
+                break;
         }
 
         //TODO: add checks for sets and dictionaries

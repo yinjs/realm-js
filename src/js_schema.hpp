@@ -20,6 +20,7 @@
 
 #include <map>
 #include "dictionary/dictionary_schema.hpp"
+#include "set/set_schema.hpp"
 #include "js_types.hpp"
 #include <realm/object-store/schema.hpp>
 
@@ -89,6 +90,13 @@ static inline void parse_property_type(StringData object_name, Property& prop, S
 
     if(dictionary.is_dictionary()){
         prop.type |= dictionary.schema();
+        return;
+    }
+
+    SetSchema set(type);
+
+    if(set.is_set()){
+        prop.type |= set.schema();
         return;
     }
 

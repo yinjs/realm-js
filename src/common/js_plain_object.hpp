@@ -59,8 +59,7 @@ struct AccessorsConfiguration {
         object.DefineProperty(descriptor);
     }
 
-    template <class Dictionary>
-    void apply(ObjectType& object, Dictionary* dictionary) {
+    void apply(ObjectType& object, realm::object_store::Dictionary* dictionary) {
         for (auto entry_pair : *dictionary) {
             auto key = entry_pair.first.get_string().data();
             register_new_accessor(key, object, dictionary);
@@ -81,6 +80,38 @@ struct AccessorsConfiguration {
         }
 
         apply(object, dictionary);
+    }
+
+
+    // Set stuff below
+
+    void apply(ObjectType &object, realm::object_store::Set *set) {
+        // TODO
+        size_t const sz = set->size();
+
+        // for (auto entry_pair : *dictionary) {
+        //     auto key = entry_pair.first.get_string().data();
+        //     register_new_accessor(key, object, dictionary);
+        // }
+    }
+
+    void update(ObjectType& object,
+                realm::object_store::Set *set) {
+        int i = 9;
+        std::cout << i << std::endl;
+        // TODO
+        // auto keys = object.GetPropertyNames();
+        // auto size = keys.Length();
+
+        // for (auto index = 0; index < size; index++) {
+        //     std::string key = Value::to_string(context, keys[index]);
+
+        //     if (!dictionary->contains(key)) {
+        //         object.Delete(key);
+        //     }
+        // }
+
+        apply(object, set);
     }
 };
 
