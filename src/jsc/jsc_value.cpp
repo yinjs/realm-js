@@ -100,6 +100,20 @@ JSValueRef jsc::Value::from_object_id(JSContextRef ctx, const ObjectId& value)
 }
 
 template<>
+JSValueRef jsc::Value::from_uuid(JSContextRef ctx, const UUID& value)
+{
+    static jsc::String s_realm = "Realm";
+    static jsc::String s_uuid = "_UUID";
+
+    JSObjectRef global_object = JSContextGetGlobalObject(ctx);
+    JSObjectRef realm_constructor = jsc::Object::validated_get_constructor(ctx, global_object, s_realm);
+    JSObjectRef uuid_constructor = jsc::Object::validated_get_constructor(ctx, realm_constructor, s_uuid);
+
+    std::array<JSValueRef, 1> args { {jsc::Value::from_nonnull_string(ctx, jsc::String(value.to_string())) } };
+    return jsc::Function::construct(ctx, uuid_constructor, args.size(), args.data());
+}
+
+template<>
 OwnedBinaryData jsc::Value::to_binary(JSContextRef ctx, const JSValueRef& value)
 {
     static jsc::String s_array_buffer = "ArrayBuffer";
