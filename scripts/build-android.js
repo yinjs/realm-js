@@ -16,12 +16,12 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-'use strict';
-const fs = require('fs');
-const { arch } = require('os');
-const path = require('path');
-const exec = require('child_process').execFileSync;
-const compareVersions = require('compare-versions');
+"use strict";
+const fs = require("fs");
+const { arch } = require("os");
+const path = require("path");
+const exec = require("child_process").execFileSync;
+const compareVersions = require("compare-versions");
 
 //simple validation of current directory.
 const rnDir = path.resolve(process.cwd(), "react-native");
@@ -34,11 +34,11 @@ const copyOutputPath = path.resolve(process.cwd(), "react-native", "android", "s
 const buildTypes = ["Debug", "Release", "RelWithDebInfo", "MinSizeRel"];
 let architectures = ["x86", "armeabi-v7a", "arm64-v8a", "x86_64"];
 const optionDefinitions = [
-    { name: 'arch', type: validateArchitectures, multiple: false, description: "Build only for a single architecture" },
-    { name: 'changes', type: Boolean, defaultValue: false, multiple: false, description: "Build changes only" },
-    { name: 'buildType', type: validateBuildType, defaultValue: "Release", multiple: false, description: "CMAKE_BUILD_TYPE: Debug, Release, RelWithDebInfo, MinSizeRel" },
+    { name: "arch", type: validateArchitectures, multiple: false, description: "Build only for a single architecture" },
+    { name: "changes", type: Boolean, defaultValue: false, multiple: false, description: "Build changes only" },
+    { name: "buildType", type: validateBuildType, defaultValue: "Release", multiple: false, description: "CMAKE_BUILD_TYPE: Debug, Release, RelWithDebInfo, MinSizeRel" },
 ];
-const options = require('command-line-args')(optionDefinitions);
+const options = require("command-line-args")(optionDefinitions);
 
 if (options.arch) {
     architectures = [options.arch];
@@ -53,7 +53,7 @@ const sdkPath = getAndroidSdkPath();
 const cmakePath = getCmakePath(sdkPath);
 const cmakeVersion = getCmakeVersion(sdkPath);
 
-const buildPath = path.resolve(process.cwd(), 'build-realm-android');
+const buildPath = path.resolve(process.cwd(), "build-realm-android");
 if (!options.changes) {
     if (fs.existsSync(buildPath)) {
         fs.rmdirSync(buildPath, { recursive: true });
@@ -61,8 +61,8 @@ if (!options.changes) {
     fs.mkdirSync(buildPath);
 }
 
-//shared root dir to download jsc once for all architectures
-const jscDir = path.resolve(buildPath, "jsc-android");
+//shared root dir to download jsi once for all architectures
+const hermesDir = path.resolve(buildPath, "hermes-android");
 
 for (const arch of architectures) {
     console.log(`\nBuilding Realm JS Android for ${arch}`);
@@ -84,14 +84,14 @@ for (const arch of architectures) {
         "-DANDROID_NATIVE_API_LEVEL=16",
         `-DCMAKE_BUILD_TYPE=${options.buildType}`,
         "-DANDROID_STL=c++_static",
-        `-DJSC_ROOT_DIR=${jscDir}`,
+        `-DHERMES_ROOT_DIR=${hermesDir}`,
         process.cwd()
     ];
-    exec(cmakePath, args, { cwd: archBuildDir, stdio: 'inherit' });
+    exec(cmakePath, args, { cwd: archBuildDir, stdio: "inherit" });
 
     //cwd is the archBuildDir here, hence build the current dir with "--build ."
     args = ["--build", "."];
-    exec(cmakePath, args, { cwd: archBuildDir, stdio: 'inherit' });
+    exec(cmakePath, args, { cwd: archBuildDir, stdio: "inherit" });
 
     copyOutput(arch, archBuildDir);
 }
@@ -169,7 +169,7 @@ function getCmakePath(sdkPath) {
         return process.env["CMAKE_PATH"];
     }
 
-    return process.platform === 'win32' ? 'cmake.exe' : 'cmake';
+    return process.platform === "win32" ? "cmake.exe" : "cmake";
 }
 
 function getCmakeVersion(sdkPath) {
