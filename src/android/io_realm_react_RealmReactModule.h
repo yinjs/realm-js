@@ -10,31 +10,17 @@ extern "C" {
 
 /*
 * Class:      io_realm_react_RealmReactModule
+* Method:     init
+*/
+JNIEXPORT void JNICALL Java_io_realm_react_RealmReactModule_init
+  (JNIEnv *, jclass, jlong);
+
+/*
+* Class:      io_realm_react_RealmReactModule
 * Method:     setDefaultRealmFileDirectory
 */
 JNIEXPORT void JNICALL Java_io_realm_react_RealmReactModule_setDefaultRealmFileDirectory
   (JNIEnv *, jclass, jstring, jobject);
-
-/*
- * Class:     io_realm_react_RealmReactModule
- * Method:    setupChromeDebugModeRealmJsContext
- */
-JNIEXPORT jlong JNICALL Java_io_realm_react_RealmReactModule_setupChromeDebugModeRealmJsContext
-  (JNIEnv *, jclass);
-
-/*
- * Class:     io_realm_react_RealmReactModule
- * Method:    processChromeDebugCommand
- */
-JNIEXPORT jstring JNICALL Java_io_realm_react_RealmReactModule_processChromeDebugCommand
-  (JNIEnv *, jclass, jstring, jstring);
-
-/*
- * Class:     io_realm_react_RealmReactModule
- * Method:    tryRunTask
- */
-JNIEXPORT jboolean JNICALL Java_io_realm_react_RealmReactModule_tryRunTask
-(JNIEnv *, jclass);
 
 /*
  * Class:     io_realm_react_RealmReactModule

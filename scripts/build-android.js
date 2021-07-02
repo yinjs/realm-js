@@ -85,9 +85,9 @@ for (const arch of architectures) {
         `-DCMAKE_MAKE_PROGRAM=${sdkPath}/cmake/${cmakeVersion}/bin/ninja`,
         `-DCMAKE_TOOLCHAIN_FILE=${ndkPath}/build/cmake/android.toolchain.cmake`,
         "-DANDROID_TOOLCHAIN=clang",
-        "-DANDROID_NATIVE_API_LEVEL=16",
+        "-DANDROID_NATIVE_API_LEVEL=21",
         `-DCMAKE_BUILD_TYPE=${buildType}`,
-        "-DANDROID_STL=c++_static",
+        "-DANDROID_STL=c++_shared",
         `-DJSC_ROOT_DIR=${jscDir}`,
         process.cwd()
     ];

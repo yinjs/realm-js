@@ -21,16 +21,19 @@
 #include <android/asset_manager_jni.h>
 
 #include "io_realm_react_RealmReactModule.h"
-#include "rpc.hpp"
 #include "platform.hpp"
 #include "jni_utils.hpp"
 #include "hack.hpp"
 
-using namespace realm::rpc;
+#include "jsi/jsi.h"
+
+namespace jsi = facebook::jsi;
+extern "C" void realm_hermes_init(jsi::Runtime& rt, jsi::Object& exports);
+
+
 using namespace realm::jni_util;
 
-static RPCServer *s_rpc_server;
-extern bool realmContextInjected;
+bool realmContextInjected;
 jclass ssl_helper_class;
 
 namespace realm {    
@@ -70,6 +73,14 @@ JNIEXPORT void JNI_OnUnload(JavaVM* vm, void*)
     }
 }
 
+JNIEXPORT void JNICALL Java_io_realm_react_RealmReactModule_init
+  (JNIEnv *env, jclass, jlong runtimeInt)
+{
+    auto& rt = *reinterpret_cast<jsi::Runtime*>(runtimeInt);
+    auto exports = jsi::Object(rt);
+    realm_hermes_init(rt, exports);
+}
+
 JNIEXPORT void JNICALL Java_io_realm_react_RealmReactModule_setDefaultRealmFileDirectory
   (JNIEnv *env, jclass, jstring fileDir, jobject javaAssetManager)
 {
@@ -88,35 +99,6 @@ JNIEXPORT void JNICALL Java_io_realm_react_RealmReactModule_setDefaultRealmFileD
     env->ReleaseStringUTFChars(fileDir, strFileDir);
 
     __android_log_print(ANDROID_LOG_DEBUG, "JSRealm", "Absolute path: %s", realm::default_realm_file_directory().c_str());
-}
-
-JNIEXPORT jlong JNICALL Java_io_realm_react_RealmReactModule_setupChromeDebugModeRealmJsContext
-  (JNIEnv *, jclass)
-{
-    __android_log_print(ANDROID_LOG_VERBOSE, "JSRealm", "setupChromeDebugModeRealmJsContext");
-    if (s_rpc_server) {
-        delete s_rpc_server;
-    }
-    s_rpc_server = new RPCServer();
-    return (jlong)s_rpc_server;
-}
-
-JNIEXPORT jstring JNICALL Java_io_realm_react_RealmReactModule_processChromeDebugCommand
-  (JNIEnv *env, jclass, jstring chrome_cmd, jstring chrome_args)
-{
-    const char* cmd = env->GetStringUTFChars(chrome_cmd, NULL);
-    const char* args = env->GetStringUTFChars(chrome_args, NULL);
-    std::string response = s_rpc_server->perform_request(cmd, args);
-    env->ReleaseStringUTFChars(chrome_cmd, cmd);
-    env->ReleaseStringUTFChars(chrome_args, args);
-    return env->NewStringUTF(response.c_str());
-}
-
-JNIEXPORT jboolean JNICALL Java_io_realm_react_RealmReactModule_tryRunTask
-(JNIEnv *env, jclass)
-{
-  jboolean result = s_rpc_server->try_run_task();
-  return result;
 }
 
 JNIEXPORT jboolean JNICALL Java_io_realm_react_RealmReactModule_isContextInjected
