@@ -246,6 +246,10 @@ declare namespace Realm {
         [key: string]: ValueType;
     }
 
+    const Dictionary: {
+        new(): Dictionary;
+    };
+
     interface DictionaryBase<ValueType = Mixed> {
         /**
          * @returns Adds given element to the dictionary
