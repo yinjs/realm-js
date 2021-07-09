@@ -5,7 +5,7 @@ x.x.x Release notes (yyyy-MM-dd)
 
 ### Fixed
 * <How to hit and notice issue? what was the impact?> ([#????](https://github.com/realm/realm-js/issues/????), since v?.?.?)
-* None.
+* Fixed `Realm not defined` error experienced when using `Realm.Set` iterators under Jest
 
 ### Compatibility
 * MongoDB Realm Cloud.
