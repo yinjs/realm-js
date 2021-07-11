@@ -89,7 +89,7 @@ function download(serverFolder, archive, destination) {
         return Promise.resolve();
     }
 
-    const url = `https://static.realm.io/downloads/${serverFolder}/${archive}`;
+    const url = `https://yinjs.oss-cn-shanghai.aliyuncs.com/realm/${serverFolder}/${archive}`;
     console.log(`Download url: ${url}`);
     const proxyUrl = process.env.HTTP_PROXY || process.env.http_proxy || process.env.HTTPS_PROXY || process.env.https_proxy;
     let agent;
